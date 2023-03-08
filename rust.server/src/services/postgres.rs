@@ -26,7 +26,7 @@ impl PostgresService {
             .parse()
             .expect("Failed to parse DB_PORT");
         let db_max_connections = std::env::var("DB_MAX_CONNECTIONS")
-            .unwrap_or_else(|_| "10".to_owned())
+            .unwrap_or_else(|_| "16".to_owned())
             .parse()
             .expect("Failed to parse DB_MAX_CONNECTIONS");
         let dbSettings = DatabaseSettings::new(
@@ -47,21 +47,23 @@ impl PostgresService {
         return Self { connection };
     }
 
-    pub async fn getUsers(&self) -> Result<Vec<crate::models::User>, sqlx::Error> {
+    pub async fn getUsers(&self) -> Result<Vec<crate::models::User>, String> {
         let rows = sqlx::query("select * from \"User\"")
             .fetch_all(&self.connection)
-            .await?;
+            .await
+            .map_err(|e| format!("{:?}", e))?;
         let users = rows.iter().map(|row| {
             let _id: Uuid = row.get("id");
             let id: String = format!("{}", _id);
             let framework: String = row.get("framework");
             let first_name: String = row.get("first_name");
             let last_name: String = row.get("last_name");
+            let birthday = row.try_get("birthday").unwrap_or_else(|_| None);
             let email: String = row.get("email");
-            let user = User::new(id, framework, first_name, last_name, None, email);
+            let user = User::new(id, framework, first_name, last_name, birthday, email);
             return user;
         }).collect();
-        
+
         return Ok(users);
     }
 }
