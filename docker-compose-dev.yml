@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  rust.server:
+  rust.axum.server:
+    container_name: rust.axum.server
     build:
-      context: ./rust.server
+      context: ./rust.axum.server
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
@@ -11,9 +12,9 @@ services:
     ports:
       - "8888:8888"
 
-  fastapi_sample_server:
-    container_name: fastapi_sample_server
-    build: ./backend
+  fastapi.server:
+    container_name: fastapi.server
+    build: ./fastapi.server
     restart: always
     command: "sh -c 'alembic upgrade head && uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000'"
     volumes:
