@@ -30,13 +30,13 @@ services:
     ports:
       - "8888:8888"
 
-  fastapi.server:
-    #    container_name: fastapi.server
-    build: ./fastapi.server
+  python.fastapi.server:
+    #    container_name: python.fastapi.server
+    build: ./python.fastapi.server
     restart: always
     command: "sh -c 'alembic upgrade head && uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8000'"
     volumes:
-      - ./fastapi.server/app:/code
+      - ./python.fastapi.server/app:/code
     expose:
       - 8000
     ports:
